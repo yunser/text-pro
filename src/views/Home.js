@@ -27,8 +27,12 @@ function AddDialog(props) {
         )
     }
 
-    function handleInputChange2(e) {
-        activeRule.attr.text = e.target.value
+    function handleInputChange2(name, e, type) {
+        if (type === 'number') {
+            activeRule.attr[name] = parseInt(e.target.value)
+        } else {
+            activeRule.attr[name] = e.target.value
+        }
         setState({
             activeRule
         })
@@ -60,50 +64,90 @@ function AddDialog(props) {
                         </div>
                     </div>
                     <div className={classes.right}>
-                        {activeRule.type === 'prefix' &&
-                            <div>
-                                <div>插入前缀</div>
-                                <div>
-                                    <TextField
-                                        label="文本"
-                                        // className={classes.textField}
-                                        value={activeRule.attr.text}
-                                        onChange={handleInputChange2}
-                                        // margin="normal"
-                                    />
-                                </div>
+                        <div className={classes.ruleBox}>
+                            <div className={classes.ruleName}>{activeRule.name}</div>
+                            <div className={classes.ruleBody}>
+                                {activeRule.type === 'prefix' &&
+                                    <div>
+                                        <TextField
+                                            label="文本"
+                                            // className={classes.textField}
+                                            value={activeRule.attr.text}
+                                            onChange={e => handleInputChange2('text', e)}
+                                            // margin="normal"
+                                        />
+                                    </div>
+                                }
+                                {activeRule.type === 'suffix' &&
+                                    <div>
+                                        <TextField
+                                            label="文本"
+                                            // className={classes.textField}
+                                            value={activeRule.attr.text}
+                                            onChange={e => handleInputChange2('text', e)}
+                                            // margin="normal"
+                                        />
+                                    </div>
+                                }
+                                {activeRule.type === 'upper' &&
+                                    <div>
+                                        <div>英文单词全部转成大写</div>
+                                    </div>
+                                }
+                                {activeRule.type === 'lower' &&
+                                    <div>
+                                        <div>英文单词全部转成小写</div>
+                                    </div>
+                                }
+                                {activeRule.type === 'index' &&
+                                    <div>
+                                        <div>添加行号</div>
+                                        <div>
+                                            从
+                                            <TextField
+                                                className={classes.smInput}
+                                                label=""
+                                                type="number"
+                                                // className={classes.textField}
+                                                value={activeRule.attr.initNum}
+                                                onChange={e => handleInputChange2('initNum', e, 'number')}
+                                                // margin="normal"
+                                            />
+                                            开始，每次加<TextField
+                                                className={classes.smInput}
+                                                label=""
+                                                type="number"
+                                                // className={classes.textField}
+                                                value={activeRule.attr.addNum}
+                                                onChange={e => handleInputChange2('addNum', e, 'number')}
+                                                // margin="normal"
+                                            />
+                                            不足<TextField
+                                                className={classes.smInput}
+                                                label=""
+                                                type="number"
+                                                // className={classes.textField}
+                                                value={activeRule.attr.fillNum}
+                                                onChange={e => handleInputChange2('fillNum', e, 'number')}
+                                                // margin="normal"
+                                            />位靠
+                                            左
+                                            <select value={activeRule.attr.direction} onChange={e => handleInputChange2('direction', e)}>
+                                                <option value="left">左</option>
+                                                <option value="right">右</option>
+                                            </select>
+                                            补<TextField
+                                            label=""
+                                            // className={classes.textField}
+                                            value={activeRule.attr.fillText}
+                                            onChange={e => handleInputChange2('fillText', e)}
+                                            // margin="normal"
+                                        />
+                                        </div>
+                                    </div>
+                                }
                             </div>
-                        }
-                        {activeRule.type === 'suffix' &&
-                            <div>
-                                <div>插入后缀</div>
-                                <div>
-                                    <TextField
-                                        label="文本"
-                                        // className={classes.textField}
-                                        value={activeRule.attr.text}
-                                        onChange={handleInputChange2}
-                                        // margin="normal"
-                                    />
-                                </div>
-                            </div>
-                        }
-                        {activeRule.type === 'upper' &&
-                            <div>
-                                <div>大写</div>
-                                <div>英文单词全部转成大写</div>
-                                <div>
-                                </div>
-                            </div>
-                        }
-                        {activeRule.type === 'lower' &&
-                            <div>
-                                <div>小写</div>
-                                <div>英文单词全部转成小写</div>
-                                <div>
-                                </div>
-                            </div>
-                        }
+                        </div>
 
                     </div>
                 </div>
@@ -122,8 +166,12 @@ function AddDialog(props) {
 
 export default class Home extends React.Component {
     state = {
-        text: `第一行
-第二行
+        text: `1
+22
+333
+4444
+Hello
+World
 This is Cat`,
         result: '',
         formData: {
@@ -204,6 +252,30 @@ This is Cat`,
                 handler(text, attr) {
                     return text.toLowerCase()
                 },
+            },
+            {
+                type: 'index',
+                name: '行号',
+                attr: {
+                    initNum: 1,
+                    addNum: 1,
+                    fillNum: 3,
+                    fillText: '0',
+                    direction: 'left',
+                },
+                getDesc(attr) {
+                    return `添加行号，从 ${attr.initNum} 开始，每次加 ${attr.addNum}`
+                },
+                handler(text, attr, index) {
+                    console.log('index', index)
+                    let num = '' + (attr.initNum + attr.addNum * index)
+                    if (attr.direction === 'left') {
+                        num = num.padStart(attr.fillNum, attr.fillText)
+                    } else {
+                        num = num.padEnd(attr.fillNum, attr.fillText)
+                    }
+                    return num + text.toLowerCase()
+                },
             }
         ],
         activeRule: {
@@ -224,10 +296,12 @@ This is Cat`,
         const { text, result, formData, rules, allRules, activeRule, addDialogVisible } = state
 
 
-        let dealedResult = text.split('\n').filter(item => item).map(item => {
+        let dealedResult = text.split('\n').filter(item => item).map((item, index) => {
             let itemResult = item
-            for (let rule of rules) {
-                itemResult = allRules.find(_ => _.type === rule.type).handler(itemResult, rule.attr)
+
+            for (let i = 0; i < rules.length; i++) {
+                let rule = rules[i]
+                itemResult = allRules.find(_ => _.type === rule.type).handler(itemResult, rule.attr, index)
             }
             // if (formData.prefix) {
             //     itemResult = formData.prefix + itemResult

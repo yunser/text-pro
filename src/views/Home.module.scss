@@ -3,6 +3,9 @@
     height: 240px;
     padding: 16px;
 }
+.smInput {
+    width: 40px;
+}
 .actions {
     margin-top: 16px;
     margin-bottom: 16px;
@@ -40,6 +43,14 @@
             background: #f00;
         }
     }
+}
+.ruleBox {
+    .ruleName {
+        font-weight: bold;
+        font-style: 16px;
+        margin-bottom: 8px;
+    }
+    .ruleBody {}
 }
 /**/
 .adasas {
