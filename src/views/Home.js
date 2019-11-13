@@ -9,6 +9,8 @@ import TextField from '@material-ui/core/TextField'
 import classnames from 'classnames'
 import _ from 'lodash'
 import Page from '../components/Page'
+import Select from '@material-ui/core/Select'
+import MenuItem from '@material-ui/core/MenuItem'
 
 function AddDialog(props) {
     const { state, setState } = props
@@ -131,11 +133,18 @@ function AddDialog(props) {
                                                 onChange={e => handleInputChange2('fillNum', e, 'number')}
                                                 // margin="normal"
                                             />位靠
-                                            左
-                                            <select value={activeRule.attr.direction} onChange={e => handleInputChange2('direction', e)}>
+                                            <Select
+                                                value={activeRule.attr.direction}
+                                                onChange={e => handleInputChange2('direction', e)}
+                                                >
+                                                <MenuItem value={'left'}>左</MenuItem>
+                                                <MenuItem value={'right'}>右</MenuItem>
+                                            </Select>
+
+                                            {/* <select value={activeRule.attr.direction} onChange={e => handleInputChange2('direction', e)}>
                                                 <option value="left">左</option>
                                                 <option value="right">右</option>
-                                            </select>
+                                            </select> */}
                                             补<TextField
                                             label=""
                                             // className={classes.textField}
@@ -143,6 +152,63 @@ function AddDialog(props) {
                                             onChange={e => handleInputChange2('fillText', e)}
                                             // margin="normal"
                                         />
+                                        </div>
+                                    </div>
+                                }
+                                {activeRule.type === 'fill' &&
+                                    <div>
+                                        <div>
+                                            在
+                                            <Select
+                                                value={activeRule.attr.direction}
+                                                onChange={e => handleInputChange2('direction', e)}
+                                                >
+                                                <MenuItem value={'left'}>左</MenuItem>
+                                                <MenuItem value={'right'}>右</MenuItem>
+                                            </Select>
+                                            边填充
+                                            <TextField
+                                                label=""
+                                                // className={classes.textField}
+                                                value={activeRule.attr.text}
+                                                onChange={e => handleInputChange2('text', e)}
+                                                // margin="normal"
+                                            />
+                                            至
+                                            <TextField
+                                                className={classes.smInput}
+                                                label=""
+                                                type="number"
+                                                // className={classes.textField}
+                                                value={activeRule.attr.num}
+                                                onChange={e => handleInputChange2('num', e, 'number')}
+                                                // margin="normal"
+                                            />
+                                            个字符
+                                        </div>
+                                    </div>
+                                }
+                                {activeRule.type === 'remove' &&
+                                    <div>
+                                        <div>
+                                            在
+                                            <Select
+                                                value={activeRule.attr.direction}
+                                                onChange={e => handleInputChange2('direction', e)}
+                                                >
+                                                <MenuItem value={'left'}>左</MenuItem>
+                                                <MenuItem value={'right'}>右</MenuItem>
+                                            </Select>
+                                            边删除
+                                            <TextField
+                                                className={classes.smInput}
+                                                label=""
+                                                type="number"
+                                                // className={classes.textField}
+                                                value={activeRule.attr.num}
+                                                onChange={e => handleInputChange2('num', e, 'number')}
+                                                // margin="normal"
+                                            />个字符
                                         </div>
                                     </div>
                                 }
@@ -171,7 +237,7 @@ export default class Home extends React.Component {
 333
 4444
 Hello
-World
+World   
 This is Cat`,
         result: '',
         formData: {
@@ -259,7 +325,7 @@ This is Cat`,
                 attr: {
                     initNum: 1,
                     addNum: 1,
-                    fillNum: 3,
+                    fillNum: 1,
                     fillText: '0',
                     direction: 'left',
                 },
@@ -276,7 +342,76 @@ This is Cat`,
                     }
                     return num + text.toLowerCase()
                 },
-            }
+            },
+            {
+                type: 'remove',
+                name: '删除',
+                attr: {
+                    num: 1,
+                    direction: 'left',
+                },
+                getDesc(attr) {
+                    let map = {
+                        left: '左',
+                        right: '右',
+                    }
+                    return `删除字符，在${map[attr.direction]}边删除${attr.num}个字符`
+                },
+                handler(text, attr, index) {
+                    console.log('index', index)
+                    if (text.length <= attr.num) {
+                        return ''
+                    }
+                    return text.substring(attr.num)
+                },
+            },
+            {
+                type: 'trim',
+                name: '删除首尾空格',
+                attr: {
+                },
+                getDesc(attr) {
+                    return `删除首尾空格`
+                },
+                handler(text, attr) {
+                    return text.replace(/^\s+/, '').replace(/\s+$/, '')
+                },
+            },
+            {
+                type: 'removeBlank',
+                name: '删除空白符',
+                attr: {
+                },
+                getDesc(attr) {
+                    return `删除空白符`
+                },
+                handler(text, attr) {
+                    return text.replace(/\s+/g, '')
+                },
+            },
+            {
+                type: 'fill',
+                name: '填充',
+                attr: {
+                    text: '#',
+                    num: 20,
+                    direction: 'left',
+                },
+                getDesc(attr) {
+                    let map = {
+                        left: '左',
+                        right: '右',
+                    }
+                    return `在${map[attr.direction]}边填充「${attr.text}」 ${attr.num} 个字符`
+                },
+                handler(text, attr, index) {
+                    if (attr.direction === 'left') {
+                        return text.padStart(attr.num, attr.text)
+                    } else {
+                        return text.padEnd(attr.num, attr.text)
+                    }
+                },
+            },
         ],
         activeRule: {
             type: 'prefix',

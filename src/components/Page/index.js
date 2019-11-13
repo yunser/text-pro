@@ -22,10 +22,16 @@ import MenuItem from '@material-ui/core/MenuItem'
 import './index.css'
 
 export default function Page(props) {
+    console.log('props', props)
     const { title = '', menu = [] } = props
     // const { asd } = this.state
     // console.log('page this.state', this.state)
-    const [ open, setOpen ] = React.useState(window.innerWidth >= 800)
+    let [ open, setOpen ] = React.useState(window.innerWidth >= 800)
+    let headerVisible = true
+    if (window.location.search.includes('embed=true')) {
+        open = false
+        headerVisible = false
+    }
     const [ drawerType, setDrawerType ] = React.useState(window.innerWidth >= 800 ? 'inner' : 'mask')
     const [windowWidth, setWindowWidth] = useState(window.innerWidth)
     console.log('windowWidth', windowWidth)
@@ -113,37 +119,39 @@ export default function Page(props) {
     return (
         <div className="app">
             <div className="ui-page">
-                <header className="ui-page-header">
-                    <AppBar position="static">
-                        <Toolbar>
-                            <div className="ui-toolbar">
-                                <div className="ui-toolbar-left">
-                                    <IconButton className={props.menuButton} color="inherit" onClick={toggleDrawer}>
-                                        <MenuIcon />
-                                    </IconButton>
-                                    <Typography variant="title" color="inherit">{ title }</Typography>
+                {headerVisible &&
+                    <header className="ui-page-header">
+                        <AppBar position="static">
+                            <Toolbar>
+                                <div className="ui-toolbar">
+                                    <div className="ui-toolbar-left">
+                                        <IconButton className={props.menuButton} color="inherit" onClick={toggleDrawer}>
+                                            <MenuIcon />
+                                        </IconButton>
+                                        <Typography variant="title" color="inherit">{ title }</Typography>
+                                    </div>
+                                    <div className="ui-toolbar-right">
+                                        {/* <IconButton color="inherit" aria-label="menu">
+                                            <MenuIcon />
+                                        </IconButton> */}
+                                        {/* <IconButton color="inherit" aria-label="menu">
+                                            <MoreIcon onClick={handleClick} />
+                                        </IconButton> */}
+                                        {/* <Menu
+                                            id="simple-menu"
+                                            anchorEl={anchorEl}
+                                            keepMounted
+                                            open={Boolean(anchorEl)}
+                                            onClose={handleClose}
+                                        >
+                                            {menu.map(MyMenuItem)}
+                                        </Menu> */}
+                                    </div>
                                 </div>
-                                <div className="ui-toolbar-right">
-                                    {/* <IconButton color="inherit" aria-label="menu">
-                                        <MenuIcon />
-                                    </IconButton> */}
-                                    {/* <IconButton color="inherit" aria-label="menu">
-                                        <MoreIcon onClick={handleClick} />
-                                    </IconButton> */}
-                                    {/* <Menu
-                                        id="simple-menu"
-                                        anchorEl={anchorEl}
-                                        keepMounted
-                                        open={Boolean(anchorEl)}
-                                        onClose={handleClose}
-                                    >
-                                        {menu.map(MyMenuItem)}
-                                    </Menu> */}
-                                </div>
-                            </div>
-                        </Toolbar>
-                    </AppBar>
-                </header>
+                            </Toolbar>
+                        </AppBar>
+                    </header>
+                }
                 <div className="ui-page-body">
                     <div className="ui-page-side" style={{left: (drawerType === 'inner' && open) ? 0 : -256}}>
                         <Side />
